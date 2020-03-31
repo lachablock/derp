@@ -1,0 +1,14 @@
+Character
+SkinName = derp
+DisplayName = The#Derp
+TagTextColor = SKINCOLOR_YELLOW
+TagOutlineColor = SKINCOLOR_WHITE
+OppositeColor = SKINCOLOR_LILAC
+PlayerText = ^2Derp^0 has an elementary movepool that is approachable for beginners and fun to optimize.
+
+^2Ability:^0 Boomearang
+Press spin to throw your ear like a boomerang and strike enemies, objects, and even other players!
+
+^2Ability:^0 Bounce
+Double jump to bounce up to three times. With attentive positioning and slope mastery, Derp can travel incredibly high and blazingly fast!
+#
