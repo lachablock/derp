@@ -79,7 +79,7 @@ states[S_DERP_PARTICLE] = {
 	frame = SPR2_TAL0
 }
 
-SafeFreeslot("S_BOOMEARANG", "MT_BOOMEARANG")
+SafeFreeslot("S_BOOMEARANG", "MT_BOOMEARANG", "MT_DERP_EAR")
 
 states[S_BOOMEARANG] = {
 	sprite = SPR_PLAY,
@@ -94,9 +94,16 @@ mobjinfo[MT_BOOMEARANG] = {
 	height = 20*FRACUNIT,
 	radius = 10*FRACUNIT,
 	spawnhealth = 1000,
-	reactiontime = 8, // amount of tics before ear can interact with player
+	reactiontime = 8, // number of tics before ear can interact with player
 	speed = 16*FRACUNIT, // travel speed
-	mass = ANG10, // turning speed
-	damage = 5, // afterimages
+	raisestate = ANG10, // turning speed
+	meleestate = 5, // afterimages
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_SLIDEME|MF_MISSILE
+}
+
+mobjinfo[MT_DERP_EAR] = {
+	spawnstate = S_INVISIBLE,
+	height = mobjinfo[MT_PLAYER].height,
+	radius = mobjinfo[MT_PLAYER].radius,
+	flags = mobjinfo[MT_THOK].flags
 }

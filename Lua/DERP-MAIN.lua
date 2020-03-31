@@ -592,7 +592,7 @@ addHook("MobjThinker", function(ear)
 	// aesthetics
 	
 	S_StartSound(ear, sfx_capwsh)
-	P_SpawnGhostMobj(ear).fuse = info.damage
+	P_SpawnGhostMobj(ear).fuse = info.meleestate
 	
 	// logic
 	
@@ -618,7 +618,7 @@ addHook("MobjThinker", function(ear)
 			end
 		end
 		if mo
-			local angspeed = info.mass
+			local angspeed = info.raisestate
 			local dist = FixedHypot(mo.x - ear.x, mo.y - ear.y)
 			local angle = R_PointToAngle2(ear.x, ear.y, mo.x, mo.y)
 			local diff = angle - ear.angle
