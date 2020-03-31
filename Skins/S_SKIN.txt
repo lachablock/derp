@@ -9,4 +9,5 @@ normalspeed = 36
 runspeed = 25
 accelstart = 110
 acceleration = 45
+followitem = MT_DERP_EAR
 flags = SF_NOJUMPSPIN|SF_NOJUMPDAMAGE
