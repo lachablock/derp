@@ -77,8 +77,9 @@ addHook("FollowMobj", function(player, ear)
 	
 	if frame == nil
 	or valid(derp.ear)
+	or derp.flags & DF_BOUNCING
 	or mo.sprite ~= SPR_PLAY
-		ear.flags2 = $ | MF2_DONTDRAW
+		ear.frame = 0
 		return
 	end
 	

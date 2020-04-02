@@ -99,8 +99,8 @@ local POSES = {
 
 local BUTTONS = {BT_USE}
 
-local DF_BOUNCING = 1 << 0
-local DF_UNDERWATERBOUNCE = 1 << 1
+rawset(_G, "DF_BOUNCING", 1 << 0)
+rawset(_G, "DF_UNDERWATERBOUNCE", 1 << 1)
 
 // hah! you thought these were constants? fuck you, I am a degenerate programmer
 
