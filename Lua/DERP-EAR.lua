@@ -12,11 +12,11 @@ local EAR_FRAMES = {
 		[A] = "B", // this says: for STND frame A, use TAL8 frame B
 	},
 	[SPR2_WAIT] = {
-		[A] = "B", // this says: for WAIT frame A, use TAL8 frame C
-		[B] = "B", // this says: for WAIT frame B, use TAL8 frame C
+		[A] = "B", // this says: for WAIT frame A, use TAL8 frame B
+		[B] = "B", // this says: for WAIT frame B, use TAL8 frame B
 	},
 	[SPR2_WALK] = {
-		[A] = "C",
+		[A] = "C", // ok epic thanks for the tutorial
 		[B] = "D",
 		[C] = "E",
 		[D] = "D",
@@ -26,10 +26,10 @@ local EAR_FRAMES = {
 		[H] = "F",
 	},
 	[SPR2_RUN] = {
-		[A] = "A", // this says: for RUN_ frame A, use TAL8 frame A (you could make this E if you want to. Or you could do walking first and insert that into this table and use frames E - L there and use M here instead or something)
-		[B] = "A", // this says: for RUN_ frame B, use TAL8 frame A
-		[C] = "A", // you probably get the idea now
-		[D] = "A",
+		[A] = "H", 
+		[B] = "I", 
+		[C] = "J", 
+		[D] = "K",
 	},
 }
 
