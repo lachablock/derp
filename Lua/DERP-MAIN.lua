@@ -294,6 +294,7 @@ addHook("ThinkFrame", do
 		and derp.ear.reactiontime <= 0
 			local item = P_LookForEnemies(player, false, true)
 			if valid(item)
+			and not (item.type == MT_METALSONIC_BATTLE and item.flags2 & MF2_INVERTAIMABLE)
 				if derp.buttons[BT_USE] == 1
 					derp.ear.tracer = item
 				else
@@ -578,16 +579,27 @@ addHook("MobjThinker", function(ear)
 	if not ear.valid then return end
 	
 	local info = ear.info
-	local speed = FixedMul(info.speed, ear.scale)
 	local aiming = 0
+	local speed
+	local angspeed
 	
 	// semantics
 	
-	if ear.reactiontime > 0
-		ear.reactiontime = $ - 1
+	if ear.angspeed == nil
+		ear.speed = FixedMul(info.speed, ear.scale)
+		ear.angspeed = info.raisestate
+		ear.time = 0
 	end
 	
-	ear.flags = info.flags // I don't understand missiles but you bet your arse I am not switching to MobjMoveCollide
+	if ear.reactiontime > 0
+		ear.reactiontime = $ - 1
+	else
+		ear.speed = $ + (ear.scale >> 4)
+		ear.angspeed = $ + (ANG1 >> 2)
+	end
+	
+	speed = ear.speed
+	angspeed = ear.angspeed
 	
 	// aesthetics
 	
@@ -601,9 +613,13 @@ addHook("MobjThinker", function(ear)
 	else
 		local mo
 		local z
-		if valid(ear.tracer)
-		and ear.tracer.health
-		and not (ear.flags2 & MF2_FRET)
+		local tracer = ear.tracer
+		if valid(tracer)
+		and tracer.health
+		and not (tracer.flags2 & MF2_FRET)
+		and (tracer.flags & MF_SHOOTABLE and true) ~= (tracer.flags2 & MF2_INVERTAIMABLE and true)
+		and not (tracer.type == MT_METALSONIC_BATTLE and tracer.flags2 & MF2_INVERTAIMABLE)
+		and not (tracer.flags & (MF_NOCLIP|MF_NOCLIPTHING))
 			mo = ear.tracer
 			z = mo.z + (mo.height >> 1)
 		else
@@ -618,11 +634,20 @@ addHook("MobjThinker", function(ear)
 			end
 		end
 		if mo
-			local angspeed = info.raisestate
 			local dist = FixedHypot(mo.x - ear.x, mo.y - ear.y)
 			local angle = R_PointToAngle2(ear.x, ear.y, mo.x, mo.y)
 			local diff = angle - ear.angle
-			speed = max($, FixedHypot(mo.momx, mo.momy) + 8*mo.scale)
+			
+			if mo == ear.target
+				speed = max($, FixedHypot(mo.momx, mo.momy) + 8*mo.scale)
+			end
+			
+			if dist > speed + mo.radius + ear.radius
+				ear.flags = $ | MF_NOCLIP
+			else
+				ear.flags = $ & ~MF_NOCLIP
+			end
+			
 			ear.angle = $ + (ear.reactiontime and angspeed or max(min(diff, angspeed), -angspeed))
 			if not ear.reactiontime
 				aiming = R_PointToAngle2(0, 0, dist, z - ear.z - (ear.height >> 1))
@@ -630,10 +655,33 @@ addHook("MobjThinker", function(ear)
 		end
 	end
 	
+	ear.time = $ + 1
+	
 	// movement
 	
 	ear.momz = FixedMul(speed, sin(aiming))
 	P_InstaThrust(ear, ear.angle, FixedMul(speed, cos(aiming)))
+end, MT_BOOMEARANG)
+
+addHook("MobjMoveCollide", function(ear, item)
+	if valid(item)
+	and item.type ~= MT_PLAYER
+	and item.z <= ear.z + ear.height
+	and ear.z <= item.z + item.height
+		if (item.flags & MF_SHOOTABLE and true) ~= (item.flags2 & MF2_INVERTAIMABLE and true)
+			if item.flags & MF_MONITOR
+				P_KillMobj(item, ear, ear.target)
+			else
+				P_DamageMobj(item, ear, ear.target)
+			end
+		end
+		if item == ear.tracer
+			local info = ear.info
+			ear.speed = $ + FixedMul(info.speed >> 1, ear.scale)
+			ear.angspeed = $ + (info.raisestate >> 1)
+			ear.tracer = nil
+		end
+	end
 end, MT_BOOMEARANG)
 
 addHook("TouchSpecial", function(ear, mo)

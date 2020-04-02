@@ -95,10 +95,10 @@ mobjinfo[MT_BOOMEARANG] = {
 	radius = 10*FRACUNIT,
 	spawnhealth = 1000,
 	reactiontime = 8, // number of tics before ear can interact with player
-	speed = 16*FRACUNIT, // travel speed
-	raisestate = ANG10, // turning speed
+	speed = 16*FRACUNIT, // base travel speed
+	raisestate = ANG10, // base turning speed
 	meleestate = 5, // afterimages
-	flags = MF_SPECIAL|MF_NOGRAVITY|MF_SLIDEME|MF_MISSILE
+	flags = MF_SPECIAL|MF_NOGRAVITY|MF_SLIDEME
 }
 
 mobjinfo[MT_DERP_EAR] = {
