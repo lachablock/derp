@@ -111,6 +111,13 @@ local function valid(mo)
 	return mo and mo.valid
 end
 
+local function sign(num)
+	if num < 0
+		return -1
+	end
+	return 1
+end
+
 // sets Derp to one of his poses
 
 local function ChoosePose(mo)
@@ -226,12 +233,14 @@ addHook("ThinkFrame", do
 		
 		if not mo.derp
 			mo.derp = {}
-			mo.derp.flags = 0
-			mo.derp.stars = {}
-			mo.derp.buttons = {}
+			local derp = mo.derp
+			derp.flags = 0
+			derp.roll = 0
+			derp.stars = {}
+			derp.buttons = {}
 			
 			for i = 1, #BUTTONS
-				mo.derp.buttons[BUTTONS[i]] = 0
+				derp.buttons[BUTTONS[i]] = 0
 			end
 		end
 		
@@ -337,16 +346,17 @@ addHook("ThinkFrame", do
 				local slope = mo.standingslope
 				
 				if slope
+					local roll = slope.zangle
 					player.drawangle = slope.xydirection
-					if slope.zangle > 0
+					if roll > 0
 						player.drawangle = $ + ANGLE_180
+					else
+						roll = InvAngle(roll)
 					end
-						
-					if abs(slope.zangle) > ANG30
-						mo.frame = $ + 2
-					elseif abs(slope.zangle) > ANG10
-						mo.frame = $ + 1
-					end
+					mo.frame = $ + 6*roll/ANGLE_90
+					derp.roll = roll
+				else
+					derp.roll = 0
 				end
 				
 				// spawn stars!!
@@ -367,11 +377,12 @@ addHook("ThinkFrame", do
 			else // otherwise, make sure player is still in bounce state, and apply momentum if so
 				if mo.state ~= S_DERP_BOUNCE or mo.eflags & MFE_GOOWATER
 					derp.flags = $ & ~DF_BOUNCING
+					player.sloperollangle_override = false
+					mo.rollangle = 0
 				else
 					local addspeed = FixedMul(BOUNCE_ACCEL, mo.scale)
 					mo.momz = $ - flip * addspeed
 					player.pflags = $ | PF_JUMPSTASIS
-					P_SpawnGhostMobj(mo).fuse = 6
 				end
 			end
 		elseif mo.eflags & MFE_JUSTHITFLOOR
@@ -379,10 +390,17 @@ addHook("ThinkFrame", do
 		end
 		
 		if mo.state == S_DERP_BOUNCE // bounce animation
+			player.sloperollangle_override = true
+			derp.roll = R_PointToAngle2(0, 0, abs(mo.momz), sign(mo.momz)*FixedHypot(mo.momx, mo.momy))
 			if derp.flags & DF_BOUNCING
+				local ghost = P_SpawnGhostMobj(mo)
 				mo.frame = (-flip*mo.momz > FixedMul(BOUNCE_DISPLAY_FAST_THRESHOLD, mo.scale) and B or A) | ($ & ~FF_FRAMEMASK)
+				ghost.fuse = 6
+				ghost.rollangle = mo.rollangle
 			else
 				if derp.tics <= 0
+					player.sloperollangle_override = false
+					mo.rollangle = 0
 					if derp.bounces // change animation based on whether bounces remain
 						mo.state = S_PLAY_ROLL
 					elseif mo.eflags & MFE_GOOWATER
@@ -417,6 +435,19 @@ addHook("ThinkFrame", do
 					derp.tics = $ - 1
 				end
 			end
+		end
+		
+		// rotsprite bounce
+		if not player.sloperollangle_override
+			derp.roll = 0
+		else
+			local angle
+			if grounded
+				angle = player.drawangle
+			else
+				angle = R_PointToAngle2(0, 0, mo.momx, mo.momy)
+			end
+			mo.rollangle = FixedMul(sin(angle - R_PointToAngle(mo.x, mo.y)), derp.roll)
 		end
 		
 		// Bounce pose
