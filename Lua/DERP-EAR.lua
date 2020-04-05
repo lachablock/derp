@@ -31,6 +31,9 @@ local EAR_FRAMES = {
 		[C] = "J", 
 		[D] = "K",
 	},
+	[SPR2_PAIN] = {
+		[A] = "L",
+	},
 }
 
 /*
