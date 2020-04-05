@@ -594,7 +594,7 @@ addHook("MobjThinker", function(ear)
 	if ear.reactiontime > 0
 		ear.reactiontime = $ - 1
 	else
-		ear.speed = $ + (ear.scale >> 4)
+		ear.speed = $ + (ear.scale /10)
 		ear.angspeed = $ + (ANG1 >> 2)
 	end
 	
@@ -677,7 +677,7 @@ addHook("MobjMoveCollide", function(ear, item)
 		end
 		if item == ear.tracer
 			local info = ear.info
-			ear.speed = $ + FixedMul(info.speed >> 1, ear.scale)
+			ear.speed = $ + FixedMul(info.speed >> 3, ear.scale)
 			ear.angspeed = $ + (info.raisestate >> 1)
 			ear.tracer = nil
 		end
