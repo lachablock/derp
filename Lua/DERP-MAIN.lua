@@ -101,6 +101,7 @@ local BUTTONS = {BT_USE}
 
 rawset(_G, "DF_BOUNCING", 1 << 0)
 rawset(_G, "DF_UNDERWATERBOUNCE", 1 << 1)
+rawset(_G, "DF_ROTSPRITE", 1 << 2)
 
 // hah! you thought these were constants? fuck you, I am a degenerate programmer
 
@@ -353,7 +354,7 @@ addHook("ThinkFrame", do
 					else
 						roll = InvAngle(roll)
 					end
-					mo.frame = $ + 6*roll/ANGLE_90
+					mo.frame = $ + 6*(roll/ANG1)/90
 					derp.roll = roll
 				else
 					derp.roll = 0
@@ -377,8 +378,6 @@ addHook("ThinkFrame", do
 			else // otherwise, make sure player is still in bounce state, and apply momentum if so
 				if mo.state ~= S_DERP_BOUNCE or mo.eflags & MFE_GOOWATER
 					derp.flags = $ & ~DF_BOUNCING
-					player.sloperollangle_override = false
-					mo.rollangle = 0
 				else
 					local addspeed = FixedMul(BOUNCE_ACCEL, mo.scale)
 					mo.momz = $ - flip * addspeed
@@ -390,7 +389,6 @@ addHook("ThinkFrame", do
 		end
 		
 		if mo.state == S_DERP_BOUNCE // bounce animation
-			player.sloperollangle_override = true
 			derp.roll = R_PointToAngle2(0, 0, abs(mo.momz), sign(mo.momz)*FixedHypot(mo.momx, mo.momy))
 			if derp.flags & DF_BOUNCING
 				local ghost = P_SpawnGhostMobj(mo)
@@ -399,8 +397,6 @@ addHook("ThinkFrame", do
 				ghost.rollangle = mo.rollangle
 			else
 				if derp.tics <= 0
-					player.sloperollangle_override = false
-					mo.rollangle = 0
 					if derp.bounces // change animation based on whether bounces remain
 						mo.state = S_PLAY_ROLL
 					elseif mo.eflags & MFE_GOOWATER
@@ -438,16 +434,23 @@ addHook("ThinkFrame", do
 		end
 		
 		// rotsprite bounce
-		if not player.sloperollangle_override
-			derp.roll = 0
-		else
-			local angle
-			if grounded
-				angle = player.drawangle
+		if derp.flags & DF_ROTSPRITE
+			if mo.state ~= S_DERP_BOUNCE
+			and mo.state ~= S_DERP_LANDING
+				derp.flags = $ & ~DF_ROTSPRITE
+				derp.roll = 0
+				player.sloperollangle_override = false
+				mo.rollangle = 0
 			else
-				angle = R_PointToAngle2(0, 0, mo.momx, mo.momy)
+				local angle
+				if grounded
+					angle = player.drawangle
+				else
+					angle = R_PointToAngle2(0, 0, mo.momx, mo.momy)
+				end
+				mo.rollangle = FixedMul(sin(angle - R_PointToAngle(mo.x, mo.y)), derp.roll)
+				player.sloperollangle_override = true
 			end
-			mo.rollangle = FixedMul(sin(angle - R_PointToAngle(mo.x, mo.y)), derp.roll)
 		end
 		
 		// Bounce pose
@@ -567,7 +570,7 @@ addHook("AbilitySpecial", function(player)
 	if derp.bounces
 		S_StartSound(mo, BOUNCE_START_SOUND)
 		derp.bounces = $ - 1
-		derp.flags = $ | DF_BOUNCING
+		derp.flags = $ | DF_BOUNCING | DF_ROTSPRITE
 		derp.fallheight = mo.z
 		derp.fallspeed = mo.momz
 		if mo.eflags & (MFE_TOUCHWATER|MFE_UNDERWATER) == (MFE_TOUCHWATER|MFE_UNDERWATER)
