@@ -434,7 +434,7 @@ addHook("ThinkFrame", do
 		end
 		
 		// rotsprite bounce
-		if derp.flags & DF_ROTSPRITE
+		/*if derp.flags & DF_ROTSPRITE
 			if mo.state ~= S_DERP_BOUNCE
 			and mo.state ~= S_DERP_LANDING
 				derp.flags = $ & ~DF_ROTSPRITE
@@ -451,7 +451,7 @@ addHook("ThinkFrame", do
 				mo.rollangle = FixedMul(sin(angle - R_PointToAngle(mo.x, mo.y)), derp.roll)
 				player.sloperollangle_override = true
 			end
-		end
+		end*/
 		
 		// Bounce pose
 		if mo.state == S_DERP_POSE
