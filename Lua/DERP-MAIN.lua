@@ -595,6 +595,10 @@ end)
 
 addHook("MobjThinker", function(ear)
 	if not ear.valid then return end
+	if not valid(ear.target)
+		P_RemoveMobj(ear)
+		return
+	end
 	
 	local info = ear.info
 	local aiming = 0
@@ -642,13 +646,11 @@ addHook("MobjThinker", function(ear)
 			z = mo.z + (mo.height >> 1)
 		else
 			ear.tracer = nil
-			if valid(ear.target)
-				mo = ear.target
-				if mo.eflags & MFE_VERTICALFLIP
-					z = mo.z + 10*mo.scale
-				else
-					z = mo.z + mo.height - 10*mo.scale
-				end
+			mo = ear.target
+			if mo.eflags & MFE_VERTICALFLIP
+				z = mo.z + 10*mo.scale
+			else
+				z = mo.z + mo.height - 10*mo.scale
 			end
 		end
 		if mo
@@ -704,5 +706,9 @@ end, MT_BOOMEARANG)
 
 addHook("TouchSpecial", function(ear, mo)
 	if ear.reactiontime return true end
-	P_RemoveMobj(ear)
+	if ear.target == mo
+	and not ear.tracer
+		P_RemoveMobj(ear)
+	end
+	return true
 end, MT_BOOMEARANG)
