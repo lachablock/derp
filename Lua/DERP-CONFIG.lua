@@ -36,7 +36,10 @@ SafeFreeslot("S_DERP_BOUNCE", "S_DERP_LANDING", "S_DERP_POSE", "S_DERP_MINECART"
 
 states[S_DERP_BOUNCE] = {
 	sprite = SPR_PLAY,
-	frame = SPR2_BNCE
+	frame = SPR2_BNCE,
+	action = A_RollAngle,
+	var1 = 0,
+	var2 = 1,
 }
 
 states[S_DERP_LANDING] = {

@@ -144,4 +144,5 @@ addHook("FollowMobj", function(player, ear)
 	ear.flags2 = mo.flags2
 	ear.eflags = mo.eflags
 	ear.color = mo.color
+	ear.rollangle = mo.rollangle
 end)

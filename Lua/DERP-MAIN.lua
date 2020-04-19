@@ -101,7 +101,6 @@ local BUTTONS = {BT_USE}
 
 rawset(_G, "DF_BOUNCING", 1 << 0)
 rawset(_G, "DF_UNDERWATERBOUNCE", 1 << 1)
-rawset(_G, "DF_ROTSPRITE", 1 << 2)
 
 // hah! you thought these were constants? fuck you, I am a degenerate programmer
 
@@ -360,7 +359,7 @@ addHook("ThinkFrame", do
 						roll = InvAngle(roll)
 					end
 					mo.frame = $ + 6*(roll/ANG1)/90
-					derp.roll = roll
+					mo.rollangle = FixedMul(sin(player.drawangle - R_PointToAngle(mo.x, mo.y)), roll)
 				else
 					derp.roll = 0
 				end
@@ -437,26 +436,6 @@ addHook("ThinkFrame", do
 				end
 			end
 		end
-		
-		// rotsprite bounce
-		/*if derp.flags & DF_ROTSPRITE
-			if mo.state ~= S_DERP_BOUNCE
-			and mo.state ~= S_DERP_LANDING
-				derp.flags = $ & ~DF_ROTSPRITE
-				derp.roll = 0
-				player.sloperollangle_override = false
-				mo.rollangle = 0
-			else
-				local angle
-				if grounded
-					angle = player.drawangle
-				else
-					angle = R_PointToAngle2(0, 0, mo.momx, mo.momy)
-				end
-				mo.rollangle = FixedMul(sin(angle - R_PointToAngle(mo.x, mo.y)), derp.roll)
-				player.sloperollangle_override = true
-			end
-		end*/
 		
 		// Bounce pose
 		if mo.state == S_DERP_POSE
@@ -575,7 +554,7 @@ addHook("AbilitySpecial", function(player)
 	if derp.bounces
 		S_StartSound(mo, BOUNCE_START_SOUND)
 		derp.bounces = $ - 1
-		derp.flags = $ | DF_BOUNCING | DF_ROTSPRITE
+		derp.flags = $ | DF_BOUNCING
 		derp.fallheight = mo.z
 		derp.fallspeed = mo.momz
 		if mo.eflags & (MFE_TOUCHWATER|MFE_UNDERWATER) == (MFE_TOUCHWATER|MFE_UNDERWATER)
