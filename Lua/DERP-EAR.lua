@@ -83,8 +83,8 @@ local EAR_FRAMES = {
 		[F] = "b",
 	},
 	[SPR2_TAL4] = {
-		[A] = "c",
-		[B] = "d",
+		[B] = "c",
+		[D] = "d",
 	},
 }
 
