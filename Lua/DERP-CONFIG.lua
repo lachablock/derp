@@ -32,7 +32,7 @@ sfxinfo[sfx_capwsh].caption = "Pivoting"
 sfxinfo[sfx_capwsh].flags = $ | SF_NOINTERRUPT
 
 SafeFreeslot("S_DERP_BOUNCE", "S_DERP_LANDING", "S_DERP_POSE", "S_DERP_MINECART",
-"S_DERP_THROW1", "S_DERP_THROW2", "S_DERP_THROW3", "S_DERP_PARTICLE")
+"S_DERP_THROW1", "S_DERP_THROW2", "S_DERP_THROW3", "S_DERP_PARTICLE", "S_DERP_MINECARTHAND")
 
 states[S_DERP_BOUNCE] = {
 	sprite = SPR_PLAY,
@@ -80,6 +80,12 @@ states[S_DERP_THROW2] = {
 states[S_DERP_PARTICLE] = {
 	sprite = SPR_PLAY,
 	frame = SPR2_TAL0
+}
+
+states[S_DERP_MINECARTHAND] = {
+	sprite = SPR_PLAY,
+	frame = SPR2_TAL7,
+	tics = 1,
 }
 
 SafeFreeslot("S_BOOMEARANG", "MT_BOOMEARANG", "MT_DERP_EAR")

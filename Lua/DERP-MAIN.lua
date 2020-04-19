@@ -482,8 +482,25 @@ addHook("ThinkFrame", do
 		
 		// Minecart frame
 		if player.powers[pw_carry] == CR_MINECART
-		and mo.state ~= S_DERP_MINECART
-			mo.state = S_DERP_MINECART
+			local angle = player.drawangle
+			local voff = 28*FRACUNIT
+			local hoff = 12*FRACUNIT
+			local zoff = 18*FRACUNIT
+			local angleoff = R_PointToAngle2(0, 0, voff, hoff)
+			local dist = FixedHypot(hoff, voff)
+			if mo.state ~= S_DERP_MINECART
+				mo.state = S_DERP_MINECART
+			end
+			for i = 0, 1
+				local xoff = FixedMul(dist, cos(angle + angleoff))
+				local yoff = FixedMul(dist, sin(angle + angleoff))
+				local hand = P_SpawnMobjFromMobj(mo, xoff, yoff, zoff, MT_THOK)
+				hand.angle = angle
+				hand.skin = mo.skin
+				hand.state = S_DERP_MINECARTHAND
+				hand.frame = $ + i
+				angleoff = InvAngle($)
+			end
 		end
 		
 		// animate stars
