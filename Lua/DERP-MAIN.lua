@@ -226,7 +226,12 @@ addHook("ThinkFrame", do
 		end
 		
 		if mo.skin ~= SKIN
+		or not mo.health
 			if mo.derp
+				local derp = mo.derp
+				if valid(derp.ear)
+					P_RemoveMobj(derp.ear)
+				end
 				mo.derp = nil
 			end
 			continue

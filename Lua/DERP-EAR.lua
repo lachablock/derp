@@ -134,6 +134,7 @@ addHook("FollowMobj", function(player, ear)
 	or valid(derp.ear)
 	or derp.flags & DF_BOUNCING
 	or mo.sprite ~= SPR_PLAY
+	or player.powers[pw_carry] == CR_MINECART
 		ear.frame = 0
 		return
 	end
