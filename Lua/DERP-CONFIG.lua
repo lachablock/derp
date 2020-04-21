@@ -32,7 +32,8 @@ sfxinfo[sfx_capwsh].caption = "Pivoting"
 sfxinfo[sfx_capwsh].flags = $ | SF_NOINTERRUPT
 
 SafeFreeslot("S_DERP_BOUNCE", "S_DERP_LANDING", "S_DERP_POSE", "S_DERP_MINECART",
-"S_DERP_THROW1", "S_DERP_THROW2", "S_DERP_THROW3", "S_DERP_PARTICLE", "S_DERP_MINECARTHAND")
+"S_DERP_THROW1", "S_DERP_THROW2", "S_DERP_THROW3", "S_DERP_PARTICLE",
+"S_DERP_MINECARTHAND", "S_DERP_MINECARTHAT")
 
 states[S_DERP_BOUNCE] = {
 	sprite = SPR_PLAY,
@@ -88,7 +89,17 @@ states[S_DERP_MINECARTHAND] = {
 	tics = 1,
 }
 
-SafeFreeslot("S_BOOMEARANG", "MT_BOOMEARANG", "MT_DERP_EAR")
+states[S_DERP_MINECARTHAT] = {
+	sprite = SPR_PLAY,
+	frame = SPR2_TAL9,
+	tics = 1,
+	action = A_ChangeAngleRelative,
+	var1 = 20,
+	var2 = 20,
+	nextstate = S_DERP_MINECARTHAT,
+}
+
+SafeFreeslot("S_BOOMEARANG", "MT_BOOMEARANG", "MT_DERP_EAR", "MT_DERP_MINECARTHAT")
 
 states[S_BOOMEARANG] = {
 	sprite = SPR_PLAY,
@@ -115,4 +126,15 @@ mobjinfo[MT_DERP_EAR] = {
 	height = mobjinfo[MT_PLAYER].height,
 	radius = mobjinfo[MT_PLAYER].radius,
 	flags = mobjinfo[MT_THOK].flags
+}
+
+mobjinfo[MT_DERP_MINECARTHAT] = {
+	spawnstate = S_DERP_MINECARTHAT,
+	radius = 8*FRACUNIT,
+	height = 8*FRACUNIT,
+	flags = MF_NOCLIPTHING|MF_SCENERY,
+	speed = -3*FRACUNIT,
+	painchance = ANG60,
+	mass = 14*FRACUNIT,
+	damage = -8*FRACUNIT,
 }

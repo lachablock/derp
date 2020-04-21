@@ -228,6 +228,13 @@ addHook("ThinkFrame", do
 		or not mo.health
 			if mo.derp
 				local derp = mo.derp
+				if derp.prevcarry == CR_MINECART
+					local hat = P_SpawnMobjFromMobj(mo, 0, 0, mo.height, MT_DERP_MINECARTHAT)
+					hat.skin = mo.skin
+					hat.state = $
+					P_SetObjectMomZ(hat, hat.info.mass, false)
+					hat.movedir = mo.angle + ANGLE_90
+				end
 				if valid(derp.ear)
 					P_RemoveMobj(derp.ear)
 				end
@@ -542,6 +549,7 @@ addHook("ThinkFrame", do
 		
 		// variable handling
 		derp.momz = mo.momz
+		derp.prevcarry = player.powers[pw_carry]
 	end
 end)
 
@@ -729,3 +737,26 @@ addHook("TouchSpecial", function(ear, mo)
 	end
 	return true
 end, MT_BOOMEARANG)
+
+// tee hee extras
+
+addHook("MobjThinker", function(mo)
+	if not mo.valid return end
+	
+	if P_IsObjectOnGround(mo)
+		P_KillMobj(mo)
+		return
+	end
+	
+	local flip = P_MobjFlip(mo)
+	local info = mo.info
+	local fallspeed = flip*mo.momz
+	if fallspeed <= 0
+		if fallspeed < info.speed
+			P_SetObjectMomZ(mo, info.speed, false)
+		end
+		mo.threshold = $ + ANG10
+		mo.rollangle = FixedMul(info.painchance, sin(mo.threshold))
+		P_InstaThrust(mo, mo.movedir, FixedMul(info.damage, cos(mo.threshold)))
+	end
+end, MT_DERP_MINECARTHAT)
