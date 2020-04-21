@@ -506,6 +506,7 @@ addHook("ThinkFrame", do
 				hand.skin = mo.skin
 				hand.state = S_DERP_MINECARTHAND
 				hand.frame = $ + i
+				hand.flags2 = $ | (mo.flags2 & MF2_DONTDRAW)
 				angleoff = InvAngle($)
 			end
 		end
