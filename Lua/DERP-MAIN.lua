@@ -596,7 +596,7 @@ addHook("SpinSpecial", function(player)
 	or not mo
 	or not mo.derp
 	or valid(mo.derp.ear)
-	or mo.derp.flags & DF_BOUNCING
+	or player.pflags & (PF_JUMPED|PF_THOKKED)
 	or not P_IsObjectOnGround(mo)
 	or not player.charability
 		return
