@@ -145,7 +145,7 @@ end
 
 // Spawns a star mobj and returns it
 
-local function SpawnStar(mo, pose, z, minaiming, maxaiming)
+local function SpawnStar(player, mo, pose, z, minaiming, maxaiming)
 	local colors = pose.colors or DEFAULT_POSE.colors
 	local frames = pose.frames or DEFAULT_POSE.frames
 	
@@ -163,7 +163,7 @@ local function SpawnStar(mo, pose, z, minaiming, maxaiming)
 	
 	star.sprite = pose.sprite or DEFAULT_POSE.sprite
 	star.frame = $ + frames[P_RandomKey(#frames) + 1]
-	star.color = colors[P_RandomKey(#colors) + 1] or mo.player.skincolor
+	star.color = colors[P_RandomKey(#colors) + 1] or player.skincolor
 	
 	local aiming = FixedAngle(P_RandomRange(minaiming, maxaiming) << FRACBITS)
 	local angle = FixedAngle(P_RandomKey(360) << FRACBITS)
@@ -386,7 +386,7 @@ addHook("ThinkFrame", do
 					maxaiming = 60
 				end
 				for i = 1, MAX_STARS
-					table.insert(derp.stars, SpawnStar(mo, DEFAULT_POSE, z, minaiming, maxaiming))
+					table.insert(derp.stars, SpawnStar(player, mo, DEFAULT_POSE, z, minaiming, maxaiming))
 				end
 			else // otherwise, make sure player is still in bounce state, and apply momentum if so
 				if mo.state ~= S_DERP_BOUNCE or mo.eflags & MFE_GOOWATER
@@ -420,8 +420,8 @@ addHook("ThinkFrame", do
 						derp.pose = ChoosePose(mo)
 						player.pflags = $ | PF_NOJUMPDAMAGE
 						local z = mo.z + (mo.height >> 1)
-						for i = 1, MAX_STARS // spawn stars!! why the fuck am I putting so much effort into this!!
-							local star = SpawnStar(mo, derp.pose, z, -90, 90)
+						for i = 1, MAX_STARS // spawn stars!!
+							local star = SpawnStar(player, mo, derp.pose, z, -90, 90)
 							
 							if not star
 								break
@@ -741,24 +741,58 @@ addHook("MobjMoveBlocked", function(ear)
 end, MT_BOOMEARANG)
 
 addHook("MobjMoveCollide", function(ear, item)
-	if valid(item)
-	and item.type ~= MT_PLAYER
-	and item.z <= ear.z + ear.height
-	and ear.z <= item.z + item.height
-		if (item.flags & MF_SHOOTABLE and true) ~= (item.flags2 & MF2_INVERTAIMABLE and true)
-			if item.flags & MF_MONITOR
-				P_KillMobj(item, ear, ear.target)
+	local mo
+	local player
+	if not ear.valid
+	or not valid(item)
+	or item.type == MT_PLAYER
+	or item.z > ear.z + ear.height
+	or ear.z > item.z + item.height
+		return
+	end
+	
+	mo = ear.target
+	if not valid(mo)
+	or not mo.player
+	or not mo.derp
+		return
+	end
+	
+	if (item.flags & MF_SHOOTABLE and true) ~= (item.flags2 & MF2_INVERTAIMABLE and true)
+		// spawn stars!!
+		local z
+		local minaiming, maxaiming
+		if P_IsObjectOnGround(item)
+			if item.eflags & MFE_VERTICALFLIP
+				z = item.z + item.height
+				minaiming = -90
+				maxaiming = -15
 			else
-				P_DamageMobj(item, ear, ear.target)
+				z = item.z
+				minaiming = 15
+				maxaiming = 90
 			end
+		else
+			z = item.z + (item.height >> 1)
+			minaiming = -90
+			maxaiming = 90
 		end
-		if item == ear.tracer
-			local info = ear.info
-			ear.speed = $ + FixedMul(info.speed >> 3, ear.scale)
-			ear.angspeed = $ + (info.raisestate >> 1)
-			ear.bounces = info.damage
-			ear.tracer = nil
+		for i = 1, MAX_STARS
+			table.insert(mo.derp.stars, SpawnStar(mo.player, item, DEFAULT_POSE, z, minaiming, maxaiming))
 		end
+		
+		if item.flags & MF_MONITOR
+			P_KillMobj(item, ear, mo)
+		else
+			P_DamageMobj(item, ear, mo)
+		end
+	end
+	if item == ear.tracer
+		local info = ear.info
+		ear.speed = $ + FixedMul(info.speed >> 3, ear.scale)
+		ear.angspeed = $ + (info.raisestate >> 1)
+		ear.bounces = info.damage
+		ear.tracer = nil
 	end
 end, MT_BOOMEARANG)
 
