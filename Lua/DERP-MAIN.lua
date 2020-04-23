@@ -247,9 +247,9 @@ addHook("ThinkFrame", do
 			mo.derp = {}
 			local derp = mo.derp
 			derp.flags = 0
-			derp.roll = 0
 			derp.stars = {}
 			derp.buttons = {}
+			derp.prevposition = {mo.x, mo.y, mo.z}
 			
 			for i = 1, #BUTTONS
 				derp.buttons[BUTTONS[i]] = 0
@@ -369,8 +369,6 @@ addHook("ThinkFrame", do
 					end
 					mo.frame = $ + 6*(roll/ANG1)/90
 					mo.rollangle = FixedMul(sin(player.drawangle - R_PointToAngle(mo.x, mo.y)), roll)
-				else
-					derp.roll = 0
 				end
 				
 				// spawn stars!!
@@ -402,12 +400,13 @@ addHook("ThinkFrame", do
 		end
 		
 		if mo.state == S_DERP_BOUNCE // bounce animation
-			derp.roll = R_PointToAngle2(0, 0, abs(mo.momz), sign(mo.momz)*FixedHypot(mo.momx, mo.momy))
 			if derp.flags & DF_BOUNCING
+				local frame = min(max(-flip*mo.momz/FixedMul(BOUNCE_DISPLAY_FAST_THRESHOLD, mo.scale), 0), 3)
 				local ghost = P_SpawnGhostMobj(mo)
-				mo.frame = (-flip*mo.momz > FixedMul(BOUNCE_DISPLAY_FAST_THRESHOLD, mo.scale) and B or A) | ($ & ~FF_FRAMEMASK)
-				ghost.fuse = 6
+				P_TeleportMove(ghost, unpack(derp.prevposition))
+				ghost.fuse = 5
 				ghost.rollangle = mo.rollangle
+				mo.frame = frame | ($ & ~FF_FRAMEMASK)
 			else
 				if derp.tics <= 0
 					if derp.bounces // change animation based on whether bounces remain
@@ -435,13 +434,9 @@ addHook("ThinkFrame", do
 						end
 					end
 				else
-					if derp.tics > BOUNCE_ANIM_TIME - 3
-					or derp.tics < BOUNCE_ANIM_TIME >> 1
-						mo.frame = A | ($ & ~FF_FRAMEMASK)
-					else
-						mo.frame = B | ($ & ~FF_FRAMEMASK)
-					end
+					local frames = {0, 1, 2, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0}
 					derp.tics = $ - 1
+					mo.frame = (frames[BOUNCE_ANIM_TIME - derp.tics] or 0) | ($ & ~FF_FRAMEMASK)
 				end
 			end
 		end
@@ -552,6 +547,7 @@ addHook("ThinkFrame", do
 		
 		// variable handling
 		derp.momz = mo.momz
+		derp.prevposition = {mo.x, mo.y, mo.z}
 		derp.prevcarry = player.powers[pw_carry]
 	end
 end)
