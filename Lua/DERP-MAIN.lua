@@ -310,14 +310,16 @@ addHook("ThinkFrame", do
 			end
 		end
 		
-		if valid(derp.ear)
-		and not valid(derp.ear.tracer)
-		and derp.ear.reactiontime <= 0
+		local ear = derp.ear
+		if valid(ear)
+		and not valid(ear.tracer)
+		and ear.reactiontime <= 0
+		and not (ear.flags2 & MF2_DONTRESPAWN)
 			local item = P_LookForEnemies(player, false, true)
 			if valid(item)
 			and not (item.type == MT_METALSONIC_BATTLE and item.flags2 & MF2_INVERTAIMABLE)
 				if derp.buttons[BT_USE] == 1
-					derp.ear.tracer = item
+					ear.tracer = item
 				else
 					P_SpawnLockOn(player, item, S_LOCKON1)
 				end
@@ -619,6 +621,23 @@ end)
 
 // Boomearang logic
 
+local function EarBounce(ear)
+	if not ear.valid return end
+	
+	S_StartSound(ear, ear.info.painsound)
+	ear.momx = -$
+	ear.momy = -$
+	ear.momz = -$
+	ear.angle = $ + ANGLE_180
+	ear.aiming = InvAngle($)
+	ear.bounces = $ - 1
+	if ear.bounces <= 0
+		ear.flags = $ | MF_NOCLIP | MF_NOCLIPHEIGHT
+		ear.tracer = nil
+		ear.flags2 = $ | MF2_DONTRESPAWN
+	end
+end
+
 addHook("MobjThinker", function(ear)
 	if not ear.valid then return end
 	if not valid(ear.target)
@@ -634,14 +653,21 @@ addHook("MobjThinker", function(ear)
 	// semantics
 	
 	if ear.angspeed == nil
+		ear.bounces = 3
 		ear.speed = FixedMul(info.speed, ear.scale)
 		ear.angspeed = info.raisestate
+		ear.aiming = 0
 		ear.time = 0
 	end
 	
 	if ear.reactiontime > 0
 		ear.reactiontime = $ - 1
 	else
+		local speed = FixedHypot(FixedHypot(ear.momx, ear.momy), ear.momz)
+		if speed < 3*(ear.speed >> 2)
+		and not (ear.flags2 & MF2_DONTRESPAWN)
+			EarBounce(ear)
+		end
 		ear.speed = $ + (ear.scale /10)
 		ear.angspeed = $ + (ANG1 >> 2)
 	end
@@ -651,6 +677,9 @@ addHook("MobjThinker", function(ear)
 	
 	// aesthetics
 	
+	if ear.flags2 & MF2_DONTRESPAWN
+		ear.flags2 = $ ^^ MF2_DONTDRAW
+	end
 	S_StartSound(ear, sfx_capwsh)
 	P_SpawnGhostMobj(ear).fuse = info.meleestate
 	
@@ -682,21 +711,19 @@ addHook("MobjThinker", function(ear)
 		if mo
 			local dist = FixedHypot(mo.x - ear.x, mo.y - ear.y)
 			local angle = R_PointToAngle2(ear.x, ear.y, mo.x, mo.y)
-			local diff = angle - ear.angle
+			local aiming = R_PointToAngle2(0, ear.z + (ear.height >> 1), dist, z)
+			local angdiff = angle - ear.angle
+			local aimdiff = aiming - ear.aiming
 			
 			if mo == ear.target
 				speed = max($, FixedHypot(mo.momx, mo.momy) + 8*mo.scale)
 			end
 			
-			if dist > speed + mo.radius + ear.radius
-				ear.flags = $ | MF_NOCLIP
+			if ear.reactiontime
+				ear.angle = $ + angspeed
 			else
-				ear.flags = $ & ~MF_NOCLIP
-			end
-			
-			ear.angle = $ + (ear.reactiontime and angspeed or max(min(diff, angspeed), -angspeed))
-			if not ear.reactiontime
-				aiming = R_PointToAngle2(0, 0, dist, z - ear.z - (ear.height >> 1))
+				ear.angle = $ + max(min(angdiff, angspeed), -angspeed)
+				ear.aiming = $ + max(min(aimdiff, angspeed), -angspeed)
 			end
 		end
 	end
@@ -705,8 +732,12 @@ addHook("MobjThinker", function(ear)
 	
 	// movement
 	
-	ear.momz = FixedMul(speed, sin(aiming))
-	P_InstaThrust(ear, ear.angle, FixedMul(speed, cos(aiming)))
+	ear.momz = FixedMul(speed, sin(ear.aiming))
+	P_InstaThrust(ear, ear.angle, FixedMul(speed, cos(ear.aiming)))
+end, MT_BOOMEARANG)
+
+addHook("MobjMoveBlocked", function(ear)
+	EarBounce(ear)
 end, MT_BOOMEARANG)
 
 addHook("MobjMoveCollide", function(ear, item)
@@ -725,6 +756,7 @@ addHook("MobjMoveCollide", function(ear, item)
 			local info = ear.info
 			ear.speed = $ + FixedMul(info.speed >> 3, ear.scale)
 			ear.angspeed = $ + (info.raisestate >> 1)
+			ear.bounces = info.damage
 			ear.tracer = nil
 		end
 	end

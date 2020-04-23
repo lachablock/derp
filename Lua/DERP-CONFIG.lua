@@ -118,6 +118,8 @@ mobjinfo[MT_BOOMEARANG] = {
 	speed = 16*FRACUNIT, // base travel speed
 	raisestate = ANG10, // base turning speed
 	meleestate = 5, // afterimages
+	damage = 3, // number of wall bounces ear can take before it gives up
+	painsound = sfx_bnce1, // sound to play when bouncing
 	flags = MF_SPECIAL|MF_NOGRAVITY|MF_SLIDEME
 }
 
