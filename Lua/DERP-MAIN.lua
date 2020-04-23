@@ -6,6 +6,8 @@ beta
 
 local SKIN = "derp" // skin to run code for
 
+local EAR_SPR2 = SPR2_TAL8 // I've picked TAL8 for the separated ear but you can change it here if you want
+
 local MAX_BOUNCES = 3 // maximum number of mid-air bounces
 local BOUNCE_START_SOUND = sfx_dbmper // sound to play when starting a bounce
 local BOUNCE_LAND_SOUND = sfx_s3k87 // sound to play when hitting the ground during a bounce
@@ -403,6 +405,9 @@ addHook("ThinkFrame", do
 			if derp.flags & DF_BOUNCING
 				local frame = min(max(-flip*mo.momz/FixedMul(BOUNCE_DISPLAY_FAST_THRESHOLD, mo.scale), 0), 3)
 				local ghost = P_SpawnGhostMobj(mo)
+				if valid(ghost.tracer) // no followmobj ghosts here, sorry
+					P_RemoveMobj(ghost.tracer)
+				end
 				P_TeleportMove(ghost, unpack(derp.prevposition))
 				ghost.fuse = 5
 				ghost.rollangle = mo.rollangle
@@ -542,6 +547,36 @@ addHook("ThinkFrame", do
 				if P_RandomKey(2)
 					star.flags2 = $ ^^ MF2_DONTDRAW
 				end
+			end
+		end
+		
+		// Handle followmobj ear
+		
+		local ear = player.followmobj
+		if valid(ear) and ear.type == skins[SKIN].followitem
+			local info = ear.info
+			
+			if not (ear.flags2 & MF2_DONTRESPAWN)
+				ear.flags2 = $ | MF2_DONTRESPAWN
+				ear.skin = mo.skin
+				ear.sprite = SPR_PLAY
+				ear.sprite2 = EAR_SPR2
+			end
+			
+			local frame = DERP_EAR_FRAMES[mo.sprite2]
+			frame = $ and $[mo.frame & FF_FRAMEMASK] or nil
+			
+			if frame == nil
+			or valid(derp.ear)
+			or mo.sprite ~= SPR_PLAY
+				ear.frame = 0
+			else
+				ear.frame = frame | (mo.frame & ~FF_FRAMEMASK)
+				
+				ear.flags2 = mo.flags2
+				ear.eflags = mo.eflags
+				ear.color = mo.color
+				ear.rollangle = mo.rollangle
 			end
 		end
 		

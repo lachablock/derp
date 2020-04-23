@@ -140,3 +140,104 @@ mobjinfo[MT_DERP_MINECARTHAT] = {
 	mass = 14*FRACUNIT,
 	damage = -8*FRACUNIT,
 }
+
+// Ear overlay
+
+local EAR_FRAMES = {
+	[SPR2_STND] = {
+		[A] = "B", // this says: for STND frame A, use TAL8 frame B
+	},
+	[SPR2_WAIT] = {
+		[A] = "B", // this says: for WAIT frame A, use TAL8 frame B
+		[B] = "B", // this says: for WAIT frame B, use TAL8 frame B
+	},
+	[SPR2_WALK] = {
+		[A] = "C", // ok epic thanks for the tutorial
+		[B] = "D",
+		[C] = "E",
+		[D] = "D",
+		[E] = "C",
+		[F] = "F",
+		[G] = "G",
+		[H] = "F",
+	},
+	[SPR2_RUN] = {
+		[A] = "H", 
+		[B] = "I", 
+		[C] = "J", 
+		[D] = "K",
+	},
+	[SPR2_PAIN] = {
+		[A] = "L",
+	},
+	[SPR2_ROLL] = {
+		[A] = "M",
+		[C] = "N",
+		[E] = "O",
+		[G] = "P",
+	},
+	[SPR2_GASP] = {
+		[A] = "Q",
+	},
+	[SPR2_SPNG] = {
+		[A] = "Q",
+	},
+	[SPR2_FALL] = {
+		[A] = "R",
+		[B] = "S",
+	},
+	[SPR2_EDGE] = {
+		[A] = "T",
+		[B] = "U",
+	},
+	[SPR2_RIDE] = {
+		[A] = "V",
+	},
+	[SPR2_SKID] = {
+		[A] = "W",
+	},
+	[SPR2_TAL1] = {
+		[A] = "X",
+		[B] = "Y",
+		[C] = "Z",
+		[D] = "0",
+		[E] = "1",
+		[F] = "2",
+		[G] = "3",
+	},
+	[SPR2_TAL2] = {
+		[A] = "4",
+		[B] = "5",
+		[C] = "6",
+		[D] = "7",
+	},
+	[SPR2_TAL3] = {
+		[A] = "8",
+		[B] = "9",
+		[C] = "a",
+		[E] = "b",
+		[F] = "b",
+	},
+	[SPR2_TAL4] = {
+		[B] = "c",
+		[D] = "d",
+	},
+}
+
+/*
+I've set the default frame to A, which is invisible. This will work as a fallback for ears that don't exist yet, or for when other people change Derp to a custom state or something.
+If you set an ear frame to a letter that you haven't imported a sprite for yet it will probably show up as the red <!> in-game.
+
+The 2.2 lump letters for frames are:
+A - Z, then
+0 - 9, then
+a - z
+*/
+
+for _, frames in pairs(EAR_FRAMES)
+	for playerframe, earframe in pairs(frames)
+		frames[playerframe] = R_Char2Frame($)
+	end
+end
+
+rawset(_G, "DERP_EAR_FRAMES", EAR_FRAMES)
