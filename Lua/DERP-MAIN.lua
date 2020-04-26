@@ -8,6 +8,8 @@ local SKIN = "derp" // skin to run code for
 
 local EAR_SPR2 = SPR2_TAL8 // I've picked TAL8 for the separated ear but you can change it here if you want
 
+local BOOMEARANG_KNOCKBACK_DELAY = 3*TICRATE
+
 local MAX_BOUNCES = 3 // maximum number of mid-air bounces
 local BOUNCE_START_SOUND = sfx_dbmper // sound to play when starting a bounce
 local BOUNCE_LAND_SOUND = sfx_s3k87 // sound to play when hitting the ground during a bounce
@@ -236,6 +238,10 @@ addHook("ThinkFrame", do
 		
 		if not mo
 			continue
+		end
+		
+		if mo.derp_knockback
+			mo.derp_knockback = $ - 1
 		end
 		
 		if mo.skin ~= SKIN
@@ -846,9 +852,15 @@ addHook("TouchSpecial", function(ear, mo)
 		and not ear.reactiontime
 			P_RemoveMobj(ear)
 		end
-	elseif player and not player.powers[pw_flashing]
+	elseif player
+	and not player.powers[pw_flashing]
+	and not player.powers[pw_super]
+	and not player.powers[pw_invulnerability]
+	and not mo.derp_knockback
 		P_DoPlayerPain(player, ear, ear.target)
 		S_StartSound(mo, sfx_shldls)
+		player.powers[pw_flashing] = 0
+		mo.derp_knockback = BOOMEARANG_KNOCKBACK_DELAY
 	end
 	return true
 end, MT_BOOMEARANG)
