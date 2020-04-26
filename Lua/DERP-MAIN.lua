@@ -126,6 +126,11 @@ local function ChoosePose(player)
 	local mo = player.mo
 	local val = player.derp_poseset
 	
+	if val == nil
+		val = DP_DEFAULT
+		player.derp_poseset = DP_DEFAULT
+	end
+	
 	if val == DP_NONE
 		mo.state = S_PLAY_JUMP
 		return DEFAULT_POSE
