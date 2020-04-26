@@ -122,17 +122,25 @@ end
 
 // sets Derp to one of his poses
 
-local function ChoosePose(mo)
-	local rarity = P_RandomFixed()
+local function ChoosePose(player)
+	local mo = player.mo
+	local val = player.derp_poseset
 	
-	if rarity < SUPERRARE_POSE_CHANCE
-		mo.sprite2 = $ + 1
-	end
-	if rarity < RARE_POSE_CHANCE
-		mo.sprite2 = $ + 1
-	end
-	if rarity < UNCOMMON_POSE_CHANCE
-		mo.sprite2 = $ + 1
+	if val == DP_NONE
+		mo.state = S_PLAY_JUMP
+		return DEFAULT_POSE
+	elseif val > DP_COMMON
+		local rarity = P_RandomFixed()
+		
+		if rarity < SUPERRARE_POSE_CHANCE
+			mo.sprite2 = $ + 1
+		end
+		if rarity < RARE_POSE_CHANCE
+			mo.sprite2 = $ + 1
+		end
+		if rarity < UNCOMMON_POSE_CHANCE
+			mo.sprite2 = $ + 1
+		end
 	end
 	
 	local pose = POSES[mo.sprite2]
@@ -141,7 +149,6 @@ local function ChoosePose(mo)
 	pose = $[frame]
 	pose = $ or DEFAULT_POSE
 	
-	S_StartSound(mo, pose.sound == nil and DEFAULT_POSE.sound or pose.sound)
 	return pose
 end
 
@@ -421,7 +428,8 @@ addHook("ThinkFrame", do
 						player.pflags = $ | PF_NOJUMPDAMAGE
 					else
 						mo.state = S_DERP_POSE
-						derp.pose = ChoosePose(mo)
+						derp.pose = ChoosePose(player)
+						S_StartSound(mo, derp.pose.sound == nil and DEFAULT_POSE.sound or derp.pose.sound)
 						player.pflags = $ | PF_NOJUMPDAMAGE
 						local z = mo.z + (mo.height >> 1)
 						for i = 1, MAX_STARS // spawn stars!!

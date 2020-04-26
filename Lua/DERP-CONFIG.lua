@@ -141,6 +141,97 @@ mobjinfo[MT_DERP_MINECARTHAT] = {
 	damage = -8*FRACUNIT,
 }
 
+// Commands
+
+local FILENAME = "client/TheDerp.dat"
+
+rawset(_G, "DP_NONE", 0)
+rawset(_G, "DP_COMMON", 1)
+rawset(_G, "DP_ALL", 2)
+rawset(_G, "DP_DEFAULT", DP_COMMON)
+
+local POSESET_NAMES = {
+	[DP_NONE] = "none",
+	[DP_COMMON] = "common",
+	[DP_ALL] = "all",
+}
+
+local function Boolean(arg)
+	if arg == "on"
+	or arg == "yes"
+	or arg == "true"
+		return true
+	elseif arg == "off"
+	or arg == "no"
+	or arg == "false"
+		return false
+	end
+end
+
+local function poseset(player, arg)
+	if player.derp_poseset == nil
+		player.derp_poseset = 1
+	end
+	if arg
+		arg = arg:lower()
+		local num = tonumber(arg)
+		local bool = Boolean(arg)
+		local val
+		
+		if num ~= nil
+		and POSESET_NAMES[num]
+			val = num
+		elseif bool == false
+		or arg == POSESET_NAMES[DP_NONE]
+			val = DP_NONE
+		elseif bool == true
+		or arg == POSESET_NAMES[DP_COMMON]
+			val = DP_COMMON
+		elseif arg == POSESET_NAMES[DP_ALL]
+			val = DP_ALL
+		end
+		
+		if val ~= nil
+			player.derp_poseset = val
+			if io and player == consoleplayer
+				local file = io.openlocal(FILENAME, "w+")
+				file:write(player.derp_poseset)
+				file:close()
+			end
+			return
+		end
+	end
+	
+	local message = ""
+	message = $ .. "\"poseset\" is \""..POSESET_NAMES[player.derp_poseset].."\" default is \""..POSESET_NAMES[DP_DEFAULT].."\""
+	message = $ .. "\nposeset <arg>:"
+	message = $ .. "\n- "..POSESET_NAMES[DP_NONE]..": Derp will not pose"
+	message = $ .. "\n- "..POSESET_NAMES[DP_COMMON]..": Derp will only pose tastefully"
+	message = $ .. "\n- "..POSESET_NAMES[DP_ALL]..": Derp will pose tastefully and memefully"
+	CONS_Printf(player, message)
+end
+
+COM_AddCommand("poseset2", poseset, 2)
+COM_AddCommand("poseset", poseset)
+
+if io
+	addHook("ThinkFrame", do
+		if consoleplayer and consoleplayer.valid
+		and consoleplayer.derp_poseset == nil
+			local file = io.openlocal(FILENAME)
+			if file
+				local num = file:read("*n")
+				if num ~= nil and POSESET_NAMES[num]
+					COM_BufInsertText(consoleplayer, "poseset "..num)
+					file:close()
+					return
+				end
+			end
+			COM_BufInsertText(consoleplayer, "poseset "..DP_DEFAULT)
+		end
+	end)
+end
+
 // Ear overlay
 
 local EAR_FRAMES = {
