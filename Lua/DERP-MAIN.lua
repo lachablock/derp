@@ -304,17 +304,13 @@ addHook("ThinkFrame", do
 					+ P_ReturnThrustX(mo, angle - ANGLE_90, 15*mo.scale)
 				local y = P_ReturnThrustY(mo, angle, 11*mo.scale)
 					+ P_ReturnThrustY(mo, angle - ANGLE_90, 15*mo.scale)
-				local ear = P_SpawnMobjFromMobj(mo, x, y, 0, MT_BOOMEARANG)
+				local ear = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_BOOMEARANG)
 				ear.target = mo
 				ear.skin = mo.skin
 				ear.state = $
 				ear.color = mo.color
-				//if derp.buttons[BT_USE] == states[mo.state].tics - 1
-					//ear.flags2 = $ | MF2_AMBUSH
-					//ear.angle = angle
-				//else
-					ear.angle = angle - ANGLE_90
-				//end
+				ear.angle = angle - ANGLE_90
+				P_TryMove(ear, mo.x + x, mo.y + y, true)
 				derp.ear = ear
 			end
 		end
