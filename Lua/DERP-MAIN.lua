@@ -836,10 +836,18 @@ addHook("MobjMoveCollide", function(ear, item)
 end, MT_BOOMEARANG)
 
 addHook("TouchSpecial", function(ear, mo)
-	if ear.reactiontime return true end
+	if not (ear.valid and mo.valid) return end
+	
+	local player = mo.player
+	
 	if ear.target == mo
-	and not ear.tracer
-		P_RemoveMobj(ear)
+		if not ear.tracer
+		and not ear.reactiontime
+			P_RemoveMobj(ear)
+		end
+	elseif player and not player.powers[pw_flashing]
+		P_DoPlayerPain(player, ear, ear.target)
+		S_StartSound(mo, sfx_shldls)
 	end
 	return true
 end, MT_BOOMEARANG)
