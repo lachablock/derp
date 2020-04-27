@@ -85,7 +85,7 @@ states[S_DERP_THROW2] = {
 	tics = 4,
 	action = A_SetPAnim,
 	var1 = S_PLAY_STND,
-	var2 = PA_IDLE,
+	var2 = PA_DASH, // and again
 	nextstate = S_DERP_THROW2
 }
 
