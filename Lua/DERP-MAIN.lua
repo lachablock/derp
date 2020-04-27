@@ -344,7 +344,8 @@ addHook("ThinkFrame", do
 		
 		if mo.state == S_DERP_BOUNCE // bounce animation
 			if derp.flags & DF_BOUNCING
-				local frame = min(max(-flip*mo.momz/FixedMul(BOUNCE_DISPLAY_FAST_THRESHOLD, mo.scale), 0), 3)
+				local frame = mo.frame & FF_FRAMEMASK
+				local goalframe = min(max(-flip*mo.momz/FixedMul(BOUNCE_DISPLAY_FAST_THRESHOLD, mo.scale), 0), 3)
 				local ghost = P_SpawnGhostMobj(mo)
 				if valid(ghost.tracer) // no followmobj ghosts here, sorry
 					P_RemoveMobj(ghost.tracer)
@@ -352,6 +353,11 @@ addHook("ThinkFrame", do
 				P_TeleportMove(ghost, unpack(derp.prevposition))
 				ghost.fuse = 5
 				ghost.rollangle = mo.rollangle
+				if goalframe > frame
+					frame = $ + 1
+				elseif goalframe < frame
+					frame = $ - 1
+				end
 				mo.frame = frame | ($ & ~FF_FRAMEMASK)
 			else
 				if derp.tics <= 0
