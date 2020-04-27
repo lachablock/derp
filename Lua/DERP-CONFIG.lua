@@ -391,15 +391,15 @@ local EAR_FRAMES = {
 		[D] = "7",
 	},
 	[SPR2_TAL3] = {
-		[A] = "8",
-		[B] = "9",
-		[C] = "a",
+		[A] = "9",
+		[B] = "a",
+		[D] = "b",
 		[E] = "b",
-		[F] = "b",
 	},
 	[SPR2_TAL4] = {
 		[B] = "c",
 		[D] = "d",
+		[F] = "8", // last-second switcheroo whoops
 	},
 }
 
