@@ -44,15 +44,16 @@ SafeFreeslot("S_DERP_BOUNCE", "S_DERP_LANDING", "S_DERP_POSE", "S_DERP_MINECART"
 states[S_DERP_BOUNCE] = {
 	sprite = SPR_PLAY,
 	frame = SPR2_BNCE,
-	action = A_RollAngle,
-	var1 = 0,
-	var2 = 1,
+	action = A_SetPAnim,
+	var2 = PA_ABILITY,
 }
 
 states[S_DERP_LANDING] = {
 	sprite = SPR_PLAY,
 	frame = SPR2_LAND,
 	tics = 1,
+	action = A_SetPAnim,
+	var2 = PA_DASH, // yes, this is the cleanest way to not have your animation reset while on an upwards moving platform...
 	nextstate = S_DERP_BOUNCE
 }
 

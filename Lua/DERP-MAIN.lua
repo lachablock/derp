@@ -298,7 +298,6 @@ addHook("ThinkFrame", do
 				S_StartSound(mo, BOUNCE_LAND_SOUND)
 				
 				mo.state = S_DERP_LANDING // set back to bouncing animation
-				player.panim = PA_ABILITY
 				
 				local slope = mo.standingslope
 				
@@ -343,6 +342,9 @@ addHook("ThinkFrame", do
 		end
 		
 		if mo.state == S_DERP_BOUNCE // bounce animation
+			if mo.eflags & MFE_APPLYPMOMZ // 2.2 will forever feel impure to me until we work out what the fuck is going on with upwards moving surfaces
+				player.pflags = $ & ~PF_NOJUMPDAMAGE | PF_JUMPED | PF_THOKKED
+			end
 			if derp.flags & DF_BOUNCING
 				local frame = mo.frame & FF_FRAMEMASK
 				local goalframe = min(max(-flip*mo.momz/FixedMul(BOUNCE_DISPLAY_FAST_THRESHOLD, mo.scale), 0), 3)
@@ -388,10 +390,16 @@ addHook("ThinkFrame", do
 					end
 				else // sort-of-hardcoded bounce animation
 					local frames = {0, 1, 2, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0}
+					if derp.tics == BOUNCE_ANIM_TIME
+						mo.rollangle = 0
+					end
 					derp.tics = $ - 1
 					mo.frame = (frames[BOUNCE_ANIM_TIME - derp.tics] or 0) | ($ & ~FF_FRAMEMASK)
 				end
 			end
+		elseif derp.tics
+			derp.tics = 0
+			mo.rollangle = 0
 		end
 		
 		// Bounce pose
