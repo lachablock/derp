@@ -398,6 +398,7 @@ addHook("ThinkFrame", do
 				end
 			end
 		elseif derp.tics
+		and mo.state ~= S_DERP_LANDING
 			derp.tics = 0
 			mo.rollangle = 0
 		end
