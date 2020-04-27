@@ -155,7 +155,17 @@ local function BustGround(mo)
 	
 	return false
 end
-			
+
+// returns whether an object is targetable with boomearang
+
+local function CanBoomearang(tracer)
+	return valid(tracer)
+	and tracer.health
+	and not (tracer.flags2 & MF2_FRET)
+	and (tracer.flags & MF_SHOOTABLE and tracer.flags & (MF_ENEMY|MF_BOSS|MF_MONITOR)) ~= (tracer.flags2 & MF2_INVERTAIMABLE and true)
+	and not (tracer.type == MT_METALSONIC_BATTLE and tracer.flags2 & MF2_INVERTAIMABLE)
+	and not (tracer.flags & (MF_NOCLIP|MF_NOCLIPTHING))
+end
 
 // main thinker
 
@@ -259,8 +269,7 @@ addHook("ThinkFrame", do
 		and ear.reactiontime <= 0
 		and not (ear.flags2 & MF2_DONTRESPAWN)
 			local item = P_LookForEnemies(player, false, true)
-			if valid(item)
-			and not (item.type == MT_METALSONIC_BATTLE and item.flags2 & MF2_INVERTAIMABLE)
+			if CanBoomearang(item)
 				if derp.buttons[BT_USE] == 1
 					ear.tracer = item
 				else
@@ -668,12 +677,7 @@ addHook("MobjThinker", function(ear)
 		local mo
 		local z
 		local tracer = ear.tracer
-		if valid(tracer)
-		and tracer.health
-		and not (tracer.flags2 & MF2_FRET)
-		and (tracer.flags & MF_SHOOTABLE and true) ~= (tracer.flags2 & MF2_INVERTAIMABLE and true)
-		and not (tracer.type == MT_METALSONIC_BATTLE and tracer.flags2 & MF2_INVERTAIMABLE)
-		and not (tracer.flags & (MF_NOCLIP|MF_NOCLIPTHING))
+		if CanBoomearang(tracer)
 			mo = ear.tracer
 			z = mo.z + (mo.height >> 1)
 		else
@@ -735,7 +739,7 @@ addHook("MobjMoveCollide", function(ear, item)
 		return
 	end
 	
-	if (item.flags & MF_SHOOTABLE and true) ~= (item.flags2 & MF2_INVERTAIMABLE and true)
+	if CanBoomearang(item)
 		// spawn stars!!
 		local z
 		local minaiming, maxaiming
