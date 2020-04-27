@@ -81,7 +81,7 @@ states[S_DERP_THROW2] = {
 	frame = SPR2_FIRE|FF_SPR2ENDSTATE,
 	tics = 4,
 	action = A_SetPAnim,
-	var1 = S_PLAY_WALK,
+	var1 = S_PLAY_STND,
 	var2 = PA_IDLE,
 	nextstate = S_DERP_THROW2
 }
