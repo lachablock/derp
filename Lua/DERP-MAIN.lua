@@ -31,7 +31,7 @@ local STAR_LIFETIME = 18 // tics the stars last for
 local BUTTONS = {BT_USE}
 
 rawset(_G, "DF_BOUNCING", 1 << 0)
-rawset(_G, "DF_UNDERWATERBOUNCE", 1 << 1)
+//rawset(_G, "DF_UNDERWATERBOUNCE", 1 << 1)
 
 // hah! you thought these were constants? fuck you, I am a degenerate programmer
 
@@ -284,10 +284,6 @@ addHook("ThinkFrame", do
 				
 				local normalgrav = FixedMul(gravity, mo.scale)
 				local grav = min(abs(P_GetMobjGravity(mo)), normalgrav)
-				/*if derp.flags & DF_UNDERWATERBOUNCE and mo.eflags & (MFE_UNDERWATER|MFE_TOUCHWATER) == (MFE_UNDERWATER|MFE_TOUCHWATER)
-					grav = $ / 3
-					derp.flags = $ & ~DF_UNDERWATERBOUNCE
-				end*/
 				local minbounce = FixedDiv(FixedMul(MIN_BOUNCE_SPEED, grav), normalgrav)
 				local height = abs(derp.fallheight - mo.z)
 				local bounceadd = min(max(BOUNCE_HEIGHT - height, -BOUNCE_POWER), BOUNCE_POWER)
@@ -570,11 +566,6 @@ addHook("AbilitySpecial", function(player)
 		derp.flags = $ | DF_BOUNCING
 		derp.fallheight = mo.z
 		derp.fallspeed = mo.momz
-		if mo.eflags & (MFE_TOUCHWATER|MFE_UNDERWATER) == (MFE_TOUCHWATER|MFE_UNDERWATER)
-			derp.flags = $ | DF_UNDERWATERBOUNCE
-		else
-			derp.flags = $ & ~DF_UNDERWATERBOUNCE
-		end
 		derp.tics = 0
 		mo.state = S_DERP_BOUNCE
 		player.panim = PA_ABILITY
