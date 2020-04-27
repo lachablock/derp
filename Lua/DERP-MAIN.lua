@@ -671,41 +671,37 @@ addHook("MobjThinker", function(ear)
 	
 	// logic
 	
-	if ear.flags2 & MF2_AMBUSH
-		speed = ear.reactiontime * $ >> 1
+	local mo
+	local z
+	local tracer = ear.tracer
+	if CanBoomearang(tracer)
+		mo = ear.tracer
+		z = mo.z + (mo.height >> 1)
 	else
-		local mo
-		local z
-		local tracer = ear.tracer
-		if CanBoomearang(tracer)
-			mo = ear.tracer
-			z = mo.z + (mo.height >> 1)
+		ear.tracer = nil
+		mo = ear.target
+		if mo.eflags & MFE_VERTICALFLIP
+			z = mo.z + 10*mo.scale
 		else
-			ear.tracer = nil
-			mo = ear.target
-			if mo.eflags & MFE_VERTICALFLIP
-				z = mo.z + 10*mo.scale
-			else
-				z = mo.z + mo.height - 10*mo.scale
-			end
+			z = mo.z + mo.height - 10*mo.scale
 		end
-		if mo
-			local dist = FixedHypot(mo.x - ear.x, mo.y - ear.y)
-			local angle = R_PointToAngle2(ear.x, ear.y, mo.x, mo.y)
-			local aiming = R_PointToAngle2(0, ear.z + (ear.height >> 1), dist, z)
-			local angdiff = angle - ear.angle
-			local aimdiff = aiming - ear.aiming
-			
-			if mo == ear.target
-				speed = max($, FixedHypot(mo.momx, mo.momy) + 8*mo.scale)
-			end
-			
-			if ear.reactiontime
-				ear.angle = $ + angspeed
-			else
-				ear.angle = $ + max(min(angdiff, angspeed), -angspeed)
-				ear.aiming = $ + max(min(aimdiff, angspeed), -angspeed)
-			end
+	end
+	if mo
+		local dist = FixedHypot(mo.x - ear.x, mo.y - ear.y)
+		local angle = R_PointToAngle2(ear.x, ear.y, mo.x, mo.y)
+		local aiming = R_PointToAngle2(0, ear.z + (ear.height >> 1), dist, z)
+		local angdiff = angle - ear.angle
+		local aimdiff = aiming - ear.aiming
+		
+		if mo == ear.target
+			speed = max($, FixedHypot(mo.momx, mo.momy) + 8*mo.scale)
+		end
+		
+		if ear.reactiontime
+			ear.angle = $ + angspeed
+		else
+			ear.angle = $ + max(min(angdiff, angspeed), -angspeed)
+			ear.aiming = $ + max(min(aimdiff, angspeed), -angspeed)
 		end
 	end
 	
