@@ -270,32 +270,27 @@ local POSES = {
 		},
 	},
 	[SPR2_TAL3] = {
-		["poses"] = 5,
-		[A] = { // cursed
-			["frames"] = {},
-			["sound"] = sfx_nsafe,
-			["cursed"] = true,
-		},
-		[B] = { // Mill
+		["poses"] = 4,
+		[A] = { // Mill
 			["sound"] = sfx_waaaaa
 		},
-		[C] = { // Kart
+		[B] = { // Kart
 			["frames"] = {I},
 			["sound"] = sfx_yeeeah,
 		},
-		[D] = { // Dirk
+		[C] = { // Dirk
 			["sprite"] = SPR_SNO1, // alternate sprite set to use, if SPR2_TAL0 is not desirable
 			["sound"] = sfx_s3k80,
 			["frames"] = {A, B, C},
 		},
-		[E] = { // sans
+		[D] = { // sans
 			["frames"] = {D|FF_FULLBRIGHT, E|FF_FULLBRIGHT},
 			["sound"] = sfx_sans,
-			["animate"] = {E, F},
+			["animate"] = {D, E},
 		},
 	},
 	[SPR2_TAL4] = {
-		["poses"] = 5,
+		["poses"] = 6,
 		[A] = { // Orville
 			["frames"] = {C},
 			["sound"] = sfx_qmark,
@@ -311,6 +306,11 @@ local POSES = {
 		[E] = { // Paco
 			["frames"] = {C},
 			["sound"] = sfx_qmark,
+		},
+		[F] = { // cursed
+			["frames"] = {},
+			["sound"] = sfx_nsafe,
+			["cursed"] = true,
 		},
 	}	
 }
