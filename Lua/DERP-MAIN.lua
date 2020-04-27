@@ -655,7 +655,7 @@ addHook("MobjThinker", function(ear)
 			EarBounce(ear)
 		end
 		ear.speed = $ + (ear.scale /10)
-		ear.angspeed = $ + (ANG1 >> 2)
+		ear.angspeed = min($ + (ANG1 >> 2), ANGLE_90)
 	end
 	
 	speed = ear.speed
@@ -767,7 +767,7 @@ addHook("MobjMoveCollide", function(ear, item)
 	if item == ear.tracer // if the object it hits is its target, speed up
 		local info = ear.info
 		ear.speed = $ + FixedMul(info.speed >> 3, ear.scale)
-		ear.angspeed = $ + (info.raisestate >> 1)
+		ear.angspeed = min($ + (info.raisestate >> 1), ANGLE_90)
 		ear.bounces = info.damage
 		ear.tracer = nil
 	end
