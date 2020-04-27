@@ -13,6 +13,12 @@ local function SafeFreeslot(...)
 	end
 end
 
+function A_SetPAnim(mo, var1, var2)
+	local player = mo.player
+	if not player return end
+	player.panim = var2
+end
+
 SafeFreeslot("sfx_dbmper", "sfx_itseem", "sfx_sans", "sfx_yeeeah", "sfx_airhrn",
 "sfx_menace", "sfx_waaaaa", "sfx_shderp", "sfx_haaaaa", "sfx_nsafe", "sfx_qmark",
 "sfx_capwsh")
@@ -74,7 +80,9 @@ states[S_DERP_THROW2] = {
 	sprite = SPR_PLAY,
 	frame = SPR2_FIRE|FF_SPR2ENDSTATE,
 	tics = 4,
+	action = A_SetPAnim,
 	var1 = S_PLAY_WALK,
+	var2 = PA_IDLE,
 	nextstate = S_DERP_THROW2
 }
 

@@ -583,6 +583,7 @@ addHook("SpinSpecial", function(player)
 	end
 	
 	mo.state = S_DERP_THROW1
+	player.panim = PA_IDLE
 	player.pflags = $ | PF_FULLSTASIS
 	player.drawangle = mo.angle
 	S_StartSound(mo, sfx_s3k4a)
