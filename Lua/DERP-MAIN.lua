@@ -522,6 +522,7 @@ addHook("ThinkFrame", do
 			if frame == nil
 			or valid(derp.ear)
 			or mo.sprite ~= SPR_PLAY
+			or mo.issucked // kirby support
 				ear.frame = 0
 			else
 				ear.frame = frame | (mo.frame & ~FF_FRAMEMASK)

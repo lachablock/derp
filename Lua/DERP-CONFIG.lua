@@ -4,6 +4,8 @@ The Derp configuration
 v1
 */
 
+local SKIN = "derp"
+
 // To prevent duplicate freeslots
 local function SafeFreeslot(...)
 	for _, item in ipairs({...})
@@ -418,3 +420,11 @@ for _, frames in pairs(EAR_FRAMES)
 end
 
 rawset(_G, "DERP_EAR_FRAMES", EAR_FRAMES)
+
+// External addon support
+
+if not kirbyabilitytable
+	rawset(_G, "kirbyabilitytable", {})
+end
+
+kirbyabilitytable[SKIN] = 9
