@@ -167,10 +167,12 @@ addHook("ThinkFrame", do
 			continue
 		end
 		
+		// while this timer is active, the player can't be knocked back by boomearangs
 		if mo.derp_knockback
 			mo.derp_knockback = $ - 1
 		end
 		
+		// if the player dies or switches skins, get rid of the Derp-related variables
 		if mo.skin ~= SKIN
 		or not mo.health
 			if mo.derp
@@ -190,6 +192,7 @@ addHook("ThinkFrame", do
 			continue
 		end
 		
+		// set up Derp variables
 		if not mo.derp
 			mo.derp = {}
 			local derp = mo.derp
@@ -208,13 +211,11 @@ addHook("ThinkFrame", do
 		local grounded = P_IsObjectOnGround(mo)
 		
 		// count buttons held
-		
 		for i = 1, #BUTTONS
 			derp.buttons[BUTTONS[i]] = player.cmd.buttons & BUTTONS[i] and $ + 1 or 0
 		end
 		
-		// NiGHTS stuff
-		
+		// NiGHTS stuff - Derp has an extra transformation frame
 		if (mo.state == S_PLAY_SUPER_TRANS4 or mo.state == S_PLAY_NIGHTS_TRANS4)
 		and mo.tics == states[mo.state].tics - 1
 			local tics = mo.tics
@@ -224,14 +225,13 @@ addHook("ThinkFrame", do
 		
 		if player.powers[pw_carry] == CR_NIGHTSMODE
 			if player.exiting
-			and mo.state == S_PLAY_NIGHTS_FLOAT
+			and mo.state == S_PLAY_NIGHTS_FLOAT // Derp uses the spring state here since it has actual rotations
 				mo.state = S_PLAY_SPRING
 			end
 			continue
 		end
 		
 		// Boomearang
-		
 		if mo.state >= S_DERP_THROW1
 		and mo.state <= S_DERP_THROW2
 			player.pflags = $ | PF_FULLSTASIS
@@ -253,7 +253,7 @@ addHook("ThinkFrame", do
 			end
 		end
 		
-		local ear = derp.ear
+		local ear = derp.ear // search for items to target while boomearang is out
 		if valid(ear)
 		and not valid(ear.tracer)
 		and ear.reactiontime <= 0
@@ -302,7 +302,7 @@ addHook("ThinkFrame", do
 				
 				local slope = mo.standingslope
 				
-				if slope
+				if slope // rotate & angle the player if bouncing off a slope
 					local roll = slope.zangle
 					player.drawangle = slope.xydirection
 					if roll > 0
@@ -380,7 +380,7 @@ addHook("ThinkFrame", do
 							table.insert(derp.stars, star)
 						end
 					end
-				else
+				else // sort-of-hardcoded bounce animation
 					local frames = {0, 1, 2, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0}
 					derp.tics = $ - 1
 					mo.frame = (frames[BOUNCE_ANIM_TIME - derp.tics] or 0) | ($ & ~FF_FRAMEMASK)
@@ -394,11 +394,11 @@ addHook("ThinkFrame", do
 				mo.frame = derp.pose.animate[((leveltime/3) % #derp.pose.animate) + 1] | ($ & ~FF_FRAMEMASK)
 			end
 			
-			if derp.pose.repeatsound
+			if derp.pose.repeatsound // old Derp
 				S_StartSound(mo, derp.pose.repeatsound)
 			end
 			
-			if derp.pose.cursed
+			if derp.pose.cursed // cursed Derp
 				if not valid(derp.cursedhand)
 					mo.tics = $ + 10
 					local hand = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK)
@@ -419,9 +419,6 @@ addHook("ThinkFrame", do
 				hand.eflags = mo.eflags
 				P_TeleportMove(hand, mo.x + x, mo.y + y, mo.z + (player.height >> 1))
 				if mo.tics <= 2*states[mo.state].tics/3
-					if mo.tics == 2*states[mo.state].tics/3
-						//S_StartSound(nil, sfx_nsafe, player)
-					end
 					hand.scale = $ + FRACUNIT/3
 					hand.height = mo.height
 				end
@@ -442,7 +439,7 @@ addHook("ThinkFrame", do
 			if mo.state ~= S_DERP_MINECART
 				mo.state = S_DERP_MINECART
 			end
-			for i = 0, 1
+			for i = 0, 1 // spawn hands each frame because I'm LAZY
 				local xoff = FixedMul(dist, cos(angle + angleoff))
 				local yoff = FixedMul(dist, sin(angle + angleoff))
 				local hand = P_SpawnMobjFromMobj(mo, xoff, yoff, zoff, MT_THOK)
@@ -468,7 +465,7 @@ addHook("ThinkFrame", do
 			local y = FixedMul(adddist, star.ythrust)
 			local z = FixedMul(adddist, star.zthrust)
 			
-			if star.distx ~= nil
+			if star.distx ~= nil // star moves relative to Derp's position
 				star.distx = $ + x
 				star.disty = $ + y
 				star.distz = $ + z
@@ -476,7 +473,7 @@ addHook("ThinkFrame", do
 				x = mo.x + star.distx
 				y = mo.y + star.disty
 				z = mo.z + star.distz
-			else
+			else // star moves relative to its spawn position
 				x = star.x + $
 				y = star.y + $
 				z = star.z + $
@@ -485,7 +482,7 @@ addHook("ThinkFrame", do
 			P_TeleportMove(star, x, y, z)
 			
 			if star.fuse < STAR_LIFETIME >> 1
-			and star.frame & FF_FULLBRIGHT
+			and star.frame & FF_FULLBRIGHT // fullbright particles flicker towards the end of their lifespan
 				if P_RandomKey(2)
 					star.flags2 = $ ^^ MF2_DONTDRAW
 				end
@@ -493,7 +490,6 @@ addHook("ThinkFrame", do
 		end
 		
 		// Handle followmobj ear
-		
 		local ear = player.followmobj
 		if valid(ear) and ear.type == skins[SKIN].followitem
 			local info = ear.info
@@ -725,7 +721,7 @@ addHook("MobjMoveCollide", function(ear, item)
 	end
 	
 	mo = ear.target
-	if not valid(mo)
+	if not valid(mo) // does the boomearang have an owner?
 	or not mo.player
 	or not mo.derp
 		return
@@ -735,7 +731,7 @@ addHook("MobjMoveCollide", function(ear, item)
 		// spawn stars!!
 		local z
 		local minaiming, maxaiming
-		if P_IsObjectOnGround(item)
+		if P_IsObjectOnGround(item) // if the object is grounded, spawn stars at its base
 			if item.eflags & MFE_VERTICALFLIP
 				z = item.z + item.height
 				minaiming = -90
@@ -745,7 +741,7 @@ addHook("MobjMoveCollide", function(ear, item)
 				minaiming = 15
 				maxaiming = 90
 			end
-		else
+		else // if the object is aerial, spawn stars at its center
 			z = item.z + (item.height >> 1)
 			minaiming = -90
 			maxaiming = 90
@@ -760,7 +756,7 @@ addHook("MobjMoveCollide", function(ear, item)
 			P_DamageMobj(item, ear, mo)
 		end
 	end
-	if item == ear.tracer
+	if item == ear.tracer // if the object it hits is its target, speed up
 		local info = ear.info
 		ear.speed = $ + FixedMul(info.speed >> 3, ear.scale)
 		ear.angspeed = $ + (info.raisestate >> 1)
@@ -774,12 +770,12 @@ addHook("TouchSpecial", function(ear, mo)
 	
 	local player = mo.player
 	
-	if ear.target == mo
+	if ear.target == mo // remove the boomearang if it returns to its owner
 		if not ear.tracer
 		and not ear.reactiontime
 			P_RemoveMobj(ear)
 		end
-	elseif player
+	elseif player // knock back other players
 	and not player.powers[pw_flashing]
 	and not player.powers[pw_super]
 	and not player.powers[pw_invulnerability]
