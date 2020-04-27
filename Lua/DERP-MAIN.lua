@@ -27,79 +27,6 @@ local SUPERRARE_POSE_CHANCE = 1*FRACUNIT/100 // chance for super rare pose to sh
 local MAX_STARS = 16 // number of stars to spawn when Derp transitions into spring state after the third bounce
 local STAR_SPEED = 5*FRACUNIT // speed the stars expand
 local STAR_LIFETIME = 18 // tics the stars last for
-local STAR_SOUND = sfx_s3k77 // sound to play when stars spawn
-
-local DEFAULT_POSE = {
-	["sprite"] = SPR_PLAY,
-	["frames"] = {FF_FULLBRIGHT},
-	["sound"] = STAR_SOUND,
-	["colors"] = {0, SKINCOLOR_SUPERORANGE2}
-}	
-
-local POSES = {
-	[SPR2_TAL1] = {
-		["poses"] = 7 // important!! this MUST match the number of frames in the SPR2 set EXCEPT those that are used in animations (e.g. sans)
-	},
-	[SPR2_TAL2] = {
-		["poses"] = 4,
-		[A] = { // peter
-			["sound"] = sfx_itseem,
-		},
-		[C] = { // dab
-			["frames"] = {F, G}, // TAL0 frames the particles can choose from
-			["sound"] = sfx_airhrn, // sound to play when pose is picked
-			["colors"] = {0}, // list of skincolors to color the particles (0 = player color)
-		},
-		[D] = { // Jojo
-			["frames"] = {B},
-			["sound"] = sfx_menace,
-		},
-	},
-	[SPR2_TAL3] = {
-		["poses"] = 5,
-		[A] = { // cursed
-			["frames"] = {},
-			["sound"] = sfx_nsafe,
-			["cursed"] = true,
-		},
-		[B] = { // Mill
-			["sound"] = sfx_waaaaa
-		},
-		[C] = { // Kart
-			["frames"] = {I},
-			["sound"] = sfx_yeeeah,
-		},
-		[D] = { // Dirk
-			["sprite"] = SPR_SNO1, // alternate sprite set to use, if SPR2_TAL0 is not desirable
-			["sound"] = sfx_s3k80,
-			["frames"] = {A, B, C},
-		},
-		[E] = { // sans
-			["frames"] = {D|FF_FULLBRIGHT, E|FF_FULLBRIGHT},
-			["sound"] = sfx_sans,
-			["animate"] = {E, F},
-		},
-	},
-	[SPR2_TAL4] = {
-		["poses"] = 5,
-		[A] = { // Orville
-			["frames"] = {C},
-			["sound"] = sfx_qmark,
-			["colors"] = {SKINCOLOR_BLUE, SKINCOLOR_SUNSET},
-		},
-		[B] = { // old Derp,
-			["repeatsound"] = sfx_shderp,
-		},
-		[C] = { // Super Saiyan
-			["sound"] = sfx_haaaaa,
-			["colors"] = {SKINCOLOR_SUPERGOLD1, SKINCOLOR_SUPERGOLD2, SKINCOLOR_SUPERGOLD3, SKINCOLOR_SUPERGOLD4, SKINCOLOR_SUPERGOLD5},
-		},
-		[E] = { // Paco
-			["frames"] = {C},
-			["sound"] = sfx_qmark,
-		},
-	}	
-}
 
 local BUTTONS = {BT_USE}
 
@@ -135,7 +62,7 @@ local function ChoosePose(player)
 	
 	if val == DP_NONE
 		mo.state = S_PLAY_JUMP
-		return DEFAULT_POSE
+		return DERP_DEFAULT_POSE
 	elseif val > DP_COMMON
 		local rarity = P_RandomFixed()
 		
@@ -150,11 +77,11 @@ local function ChoosePose(player)
 		end
 	end
 	
-	local pose = POSES[mo.sprite2]
+	local pose = DERP_POSES[mo.sprite2]
 	local frame = P_RandomByte() % pose.poses
 	mo.frame = $ + frame
 	pose = $[frame]
-	pose = $ or DEFAULT_POSE
+	pose = $ or DERP_DEFAULT_POSE
 	
 	return pose
 end
@@ -162,8 +89,8 @@ end
 // Spawns a star mobj and returns it
 
 local function SpawnStar(player, mo, pose, z, minaiming, maxaiming)
-	local colors = pose.colors or DEFAULT_POSE.colors
-	local frames = pose.frames or DEFAULT_POSE.frames
+	local colors = pose.colors or DERP_DEFAULT_POSE.colors
+	local frames = pose.frames or DERP_DEFAULT_POSE.frames
 	
 	if not #frames
 		return
@@ -177,7 +104,7 @@ local function SpawnStar(player, mo, pose, z, minaiming, maxaiming)
 	star.state = S_DERP_PARTICLE
 	star.eflags = $ | (mo.eflags & MFE_VERTICALFLIP)
 	
-	star.sprite = pose.sprite or DEFAULT_POSE.sprite
+	star.sprite = pose.sprite or DERP_DEFAULT_POSE.sprite
 	star.frame = $ + frames[P_RandomKey(#frames) + 1]
 	star.color = colors[P_RandomKey(#colors) + 1] or player.skincolor
 	
@@ -400,7 +327,7 @@ addHook("ThinkFrame", do
 					maxaiming = 60
 				end
 				for i = 1, MAX_STARS
-					table.insert(derp.stars, SpawnStar(player, mo, DEFAULT_POSE, z, minaiming, maxaiming))
+					table.insert(derp.stars, SpawnStar(player, mo, DERP_DEFAULT_POSE, z, minaiming, maxaiming))
 				end
 			else // otherwise, make sure player is still in bounce state, and apply momentum if so
 				if mo.state ~= S_DERP_BOUNCE or mo.eflags & MFE_GOOWATER
@@ -436,7 +363,7 @@ addHook("ThinkFrame", do
 					else
 						mo.state = S_DERP_POSE
 						derp.pose = ChoosePose(player)
-						S_StartSound(mo, derp.pose.sound == nil and DEFAULT_POSE.sound or derp.pose.sound)
+						S_StartSound(mo, derp.pose.sound == nil and DERP_DEFAULT_POSE.sound or derp.pose.sound)
 						player.pflags = $ | PF_NOJUMPDAMAGE
 						local z = mo.z + (mo.height >> 1)
 						for i = 1, MAX_STARS // spawn stars!!
@@ -824,7 +751,7 @@ addHook("MobjMoveCollide", function(ear, item)
 			maxaiming = 90
 		end
 		for i = 1, MAX_STARS
-			table.insert(mo.derp.stars, SpawnStar(mo.player, item, DEFAULT_POSE, z, minaiming, maxaiming))
+			table.insert(mo.derp.stars, SpawnStar(mo.player, item, DERP_DEFAULT_POSE, z, minaiming, maxaiming))
 		end
 		
 		if item.flags & MF_MONITOR

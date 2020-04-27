@@ -232,6 +232,83 @@ if io
 	end)
 end
 
+// Poses
+
+local DEFAULT_POSE = {
+	["sprite"] = SPR_PLAY,
+	["frames"] = {FF_FULLBRIGHT},
+	["sound"] = sfx_s3k77,
+	["colors"] = {0, SKINCOLOR_SUPERORANGE2}
+}
+
+local POSES = {
+	[SPR2_TAL1] = {
+		["poses"] = 7 // important!! this MUST match the number of frames in the SPR2 set EXCEPT those that are used in animations (e.g. sans)
+	},
+	[SPR2_TAL2] = {
+		["poses"] = 4,
+		[A] = { // peter
+			["sound"] = sfx_itseem,
+		},
+		[C] = { // dab
+			["frames"] = {F, G}, // TAL0 frames the particles can choose from
+			["sound"] = sfx_airhrn, // sound to play when pose is picked
+			["colors"] = {0}, // list of skincolors to color the particles (0 = player color)
+		},
+		[D] = { // Jojo
+			["frames"] = {B},
+			["sound"] = sfx_menace,
+		},
+	},
+	[SPR2_TAL3] = {
+		["poses"] = 5,
+		[A] = { // cursed
+			["frames"] = {},
+			["sound"] = sfx_nsafe,
+			["cursed"] = true,
+		},
+		[B] = { // Mill
+			["sound"] = sfx_waaaaa
+		},
+		[C] = { // Kart
+			["frames"] = {I},
+			["sound"] = sfx_yeeeah,
+		},
+		[D] = { // Dirk
+			["sprite"] = SPR_SNO1, // alternate sprite set to use, if SPR2_TAL0 is not desirable
+			["sound"] = sfx_s3k80,
+			["frames"] = {A, B, C},
+		},
+		[E] = { // sans
+			["frames"] = {D|FF_FULLBRIGHT, E|FF_FULLBRIGHT},
+			["sound"] = sfx_sans,
+			["animate"] = {E, F},
+		},
+	},
+	[SPR2_TAL4] = {
+		["poses"] = 5,
+		[A] = { // Orville
+			["frames"] = {C},
+			["sound"] = sfx_qmark,
+			["colors"] = {SKINCOLOR_BLUE, SKINCOLOR_SUNSET},
+		},
+		[B] = { // old Derp,
+			["repeatsound"] = sfx_shderp,
+		},
+		[C] = { // Super Saiyan
+			["sound"] = sfx_haaaaa,
+			["colors"] = {SKINCOLOR_SUPERGOLD1, SKINCOLOR_SUPERGOLD2, SKINCOLOR_SUPERGOLD3, SKINCOLOR_SUPERGOLD4, SKINCOLOR_SUPERGOLD5},
+		},
+		[E] = { // Paco
+			["frames"] = {C},
+			["sound"] = sfx_qmark,
+		},
+	}	
+}
+
+rawset(_G, "DERP_DEFAULT_POSE", DEFAULT_POSE)
+rawset(_G, "DERP_POSES", POSES)
+
 // Ear overlay
 
 local EAR_FRAMES = {
