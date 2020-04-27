@@ -1,7 +1,7 @@
 /*
 The Derp configuration
 	by Lach
-beta
+v1
 */
 
 // To prevent duplicate freeslots

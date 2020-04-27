@@ -1,7 +1,7 @@
 /*
 The Derp
 	by Lach
-beta
+v1
 */
 
 local SKIN = "derp" // skin to run code for
