@@ -225,10 +225,20 @@ end
 COM_AddCommand("poseset2", poseset, 2)
 COM_AddCommand("poseset", poseset)
 
+// Command loading (2.2.3+)
+
+local configplayer
+
+local function valid(mo)
+	return mo and mo.valid
+end
+
 if io
 	addHook("ThinkFrame", do
-		if consoleplayer and consoleplayer.valid
+		if valid(consoleplayer)
+		and not valid(configplayer)
 		and consoleplayer.derp_poseset == nil
+			configplayer = consoleplayer
 			local file = io.openlocal(FILENAME)
 			if file
 				local num = file:read("*n")
@@ -237,6 +247,7 @@ if io
 					file:close()
 					return
 				end
+				file:close()
 			end
 			COM_BufInsertText(consoleplayer, "poseset "..DP_DEFAULT)
 		end
